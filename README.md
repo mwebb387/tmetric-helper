@@ -1,5 +1,5 @@
 # tmetric-helper
-Helper utility for calculating totals, etc. from Tmetric
+Helper utility, built using [Deno](https://deno.com/), for calculating totals, etc. from Tmetric
 
 Since TMetric doesn't have the easiest way of reporting how much time you have worked for the week
 this utility will calculate the time you have worked, including any active timers, and report:
