@@ -3,6 +3,10 @@ import { Config, TMResult } from './types.ts';
 
 const formatDate = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
+export const getHours = (time: number) => time - (time - Math.floor(time))
+
+export const getMinutes = (time: number) => Math.round((time - Math.floor(time)) * 60)
+
 export const getBallance = async (config: Config) => {
   const tmetric = createService(config.tmetric);
 
@@ -46,4 +50,3 @@ export const getBallance = async (config: Config) => {
     finished,
   };
 }
-

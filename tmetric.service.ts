@@ -16,7 +16,8 @@ export const createService = (config: TMetricConfig) => {
       // TODO: Better construction of enpoint and params...
       const endpoint = `timeentries?userId=${config.userId}&startDate=${startDate}&endDate=${endDate}`;
       return getRequest(url, endpoint, headers)
-        .then(response => response.json() as Promise<TMResult[]>);
+        .then(response => response.json() as Promise<TMResult[]>)
+        .catch(response => console.log(response));
     }
   }
 }

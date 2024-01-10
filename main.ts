@@ -1,12 +1,12 @@
-import { getBallance } from './time.service.ts';
+import { getBallance, getHours, getMinutes } from './time.service.ts';
 import { readConfig } from './config.service.ts';
 
 const config = await readConfig('./timestream.json');
 
 const ballance = await getBallance(config);
 
-console.log('Hours worked: ', ballance.hoursWorked);
-console.log('Hours remaining: ', ballance.hoursRemaining);
+console.log('Hours worked: ', `${(getHours(ballance.hoursWorked))}h ${(getMinutes(ballance.hoursWorked))}m`);
+console.log('Hours remaining: ', `${(getHours(ballance.hoursRemaining))}h ${(getMinutes(ballance.hoursRemaining))}m`);
 ballance.hoursRemaining > 0
   ? console.log(`You will be finished working ${ballance.finished.toString()}`)
   : console.log('You are finished working!');
