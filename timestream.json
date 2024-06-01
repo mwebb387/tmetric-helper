@@ -2,6 +2,8 @@
   "hoursPerDay": 8,
   "daysPerWeek": 5,
 
+  "ptoDaysPerYear": 20,
+
   "tmetric": {
     "token": "",
     "accountId": "",

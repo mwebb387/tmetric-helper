@@ -1,17 +1,24 @@
 import { createService } from './tmetric.service.ts';
-import { Config, TMResult } from './types.ts';
+import { Config, TMTimeResult, TMRequestResult } from './types.ts';
 
 const formatDate = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+export const formatTime = (hours: number) => {
+  const absHours = Math.abs(hours);
+  const output = `${(getHours(absHours))}h ${(getMinutes(absHours))}m`;
+  return hours >= 0
+    ? output
+    : `-(${output})`;
+}
 
 export const getHours = (time: number) => time - (time - Math.floor(time))
 
 export const getMinutes = (time: number) => Math.round((time - Math.floor(time)) * 60)
 
-export const getBallance = async (config: Config) => {
+export const getTimeBallance = async (config: Config) => {
   const tmetric = createService(config.tmetric);
 
   const now = new Date();
-  console.log(now);
 
   //Get today's day offest
   const today = now.getDay();
@@ -30,7 +37,7 @@ export const getBallance = async (config: Config) => {
   // Get entries and current hours worked from the time tracking service
   const entries = await tmetric.getTimeEntries(formatDate(startDate), formatDate(endDate));
   const msCur = entries?.reduce(
-    (total: number, current: TMResult) =>
+    (total: number, current: TMTimeResult) =>
       total + (new Date(current.endTime ?? now.toString()).getTime() - new Date(current.startTime).getTime()),
     0) ?? 0;
 
@@ -48,5 +55,38 @@ export const getBallance = async (config: Config) => {
     hoursWorked,
     hoursRemaining,
     finished,
+  };
+}
+
+export const getPtoBalance = async (config: Config) => {
+  const tmetric = createService(config.tmetric);
+
+  const now = new Date()
+
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const yearEnd = new Date(now.getFullYear() + 1, 0, 1);
+
+  const ptoRequests = await tmetric.getPtoEntries(formatDate(yearStart), formatDate(yearEnd));
+
+  const approvedHours = ptoRequests
+    ?.filter((req: TMRequestResult) => req.status === 'Approved')
+    ?.reduce((total: number, req: TMRequestResult) => total + req.hours, 0)
+    ?? 0;
+
+  const pendingHours = ptoRequests
+    ?.filter((req: TMRequestResult) => req.status === 'NeedsApproval')
+    ?.reduce((total: number, req: TMRequestResult) => total + req.hours, 0)
+    ?? 0;
+  
+  const approvedDays = approvedHours / config.hoursPerDay;
+  const pendingDays = pendingHours / config.hoursPerDay;
+  const totalDaysRequested = approvedDays + pendingDays;
+  const totalDaysRemaining = config.ptoDaysPerYear - totalDaysRequested;
+
+  return {
+    approvedDays,
+    pendingDays,
+    totalDaysRequested,
+    totalDaysRemaining,
   };
 }
